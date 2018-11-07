@@ -1,17 +1,38 @@
 var express = require("express");
 var bodyParser = require("body-parser");
+var path = require("path");
 
 var app = express();
-var PORT = 3000;
+var PORT = process.env.PORT || 3000;
+
+app.listen(PORT, function () {
+    console.log("App listening on PORT " + PORT);
+});
 
 // Sets up the Express app to handle data parsing
-app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 app.use(bodyParser.json());
 
-$(document).ready(function () {
+app.get("/", function (req, res) {
+    res.sendFile(path.join(__dirname, "/app/public/home.html"));
+});
+
+app.get("/app/public/home.html", function (req, res) {
+    res.send("This is the home page - navigated here!");
+});
+
+app.get("/app/public/survey.html", function (req, res) {
+    res.sendFile(path.join (__dirname, "/app/public/survey.html"));
+//    res.send("This is the survey page!");
+});
+
+
+function doStuff() {
     let aiValuesChosen = new Array(10);
     // this assignment used for testing
-//    aiValuesChosen = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
+    //    aiValuesChosen = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
     let iChosenCount = 0;
 
     // OtherUsers should be in a file
@@ -47,14 +68,14 @@ $(document).ready(function () {
                 iDelta += Math.abs(iScore - aiValuesChosen[j]);
 
             });
-//            console.log (`User: ${i} score: ${iDelta}`)
+            //            console.log (`User: ${i} score: ${iDelta}`)
             if (iDelta < iMinDelta) {
                 iCompat = i;
                 iMinDelta = iDelta;
             }
             $('#results-modal').attr('style', 'display: inline');
-            $('#match-name').text (aoOtherUsers[iCompat].name);
+            $('#match-name').text(aoOtherUsers[iCompat].name);
         });
-//        console.log("Compatible: ", aoOtherUsers[iCompat].name, iCompat);
+        //        console.log("Compatible: ", aoOtherUsers[iCompat].name, iCompat);
     });
-})
+}
