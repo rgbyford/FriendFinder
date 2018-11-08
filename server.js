@@ -1,6 +1,7 @@
 var express = require("express");
 var bodyParser = require("body-parser");
 var path = require("path");
+var fs = require('fs');
 
 var app = express();
 var PORT = process.env.PORT || 3000;
@@ -16,7 +17,7 @@ app.use(bodyParser.urlencoded({
 app.use(bodyParser.json());
 
 app.get("/", function (req, res) {
-    res.sendFile(path.join(__dirname, "/app/public/home.html"));
+    res.sendFile(path.join(__dirname, "app/public/home.html"));
 });
 
 app.get("/app/public/home.html", function (req, res) {
@@ -24,58 +25,72 @@ app.get("/app/public/home.html", function (req, res) {
 });
 
 app.get("/app/public/survey.html", function (req, res) {
-    res.sendFile(path.join (__dirname, "/app/public/survey.html"));
-//    res.send("This is the survey page!");
+    console.log("survey");
+    res.sendFile(path.join(__dirname, "app/public/survey.html"));
+    //    res.send("Yes.  This is the survey page!");
 });
 
+app.post('/submit', function (req, res) {
+    // Get the survey results
+    // console.log('Req: ', req.headers.referer);
+    // console.log('Name: ', req.body.name);
+    // console.log('Photo: ', req.body.photo);
+    // console.log('Scores: ', req.body.scores);
+    let oThisUser = {};
+    let aoOtherUsers = [{}];
+    // let bReadFile = true;
+    let bWriteFile = true;
 
-function doStuff() {
-    let aiValuesChosen = new Array(10);
-    // this assignment used for testing
-    //    aiValuesChosen = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
-    let iChosenCount = 0;
+    // if (bReadFile) {
+//    console.log("readFile: ", path.join(__dirname, "app/data/friends.js"));
+    fs.readFile(path.join(__dirname, "app/data/friends.js"), readIt);
 
-    // OtherUsers should be in a file
-    let aoOtherUsers = [{
-            name: 'John',
-            photo: 'someURL',
-            scores: [1, 1, 1, 1, 1, 5, 5, 5, 5, 5]
-        },
-        {
-            name: 'Tony',
-            photo: 'someURL',
-            scores: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-        },
-    ]
+    function readIt(err, data) {
+        if (err) throw (err);
+        aoOtherUsers = JSON.parse(data);
+//        console.log("Inside func: ", aoOtherUsers);
+        //     aoOtherUsers = [{
+        //             name: 'John',
+        //             photo: 'someURL',
+        //             scores: [1, 1, 1, 1, 1, 5, 5, 5, 5, 5],
+        //             //            iDelta: 100
+        //         },
+        //         {
+        //             name: 'Tony',
+        //             photo: 'someURL',
+        //             scores: [3, 3, 3, 3, 3, 3, 3, 3, 3, 3],
+        //             //            iDelta: 100
+        //         },
+        //     ];
 
-    $('.select-buttons').on('change', function () {
-        // id[1] gets the number from ids of the form q1
-        aiValuesChosen[this.id[1]] = $(this).val();
-    });
-    $('#submit').on('click', function () {
-        // save this user
-        let sName = $('#name').val();
-        let sPhoto = $('#photo').val();
-        // console.log(sName);
-        // console.log(sPhoto);
-        // console.log(aiValuesChosen);
         // find "partner"
         let iMinDelta = 100;
-        $.each(aoOtherUsers, (i, iValue) => {
-            let iCompat = 0;
+        let iCompat = 0;
+        aoOtherUsers.forEach((user, i) => {
             let iDelta = 0;
-            $.each(aoOtherUsers[i].scores, (j, iScore) => {
-                iDelta += Math.abs(iScore - aiValuesChosen[j]);
-
+//            console.log(user);
+            user.scores.forEach((value2, j) => {
+                iDelta += Math.abs(value2 - parseInt(req.body.scores[j]));
             });
-            //            console.log (`User: ${i} score: ${iDelta}`)
             if (iDelta < iMinDelta) {
                 iCompat = i;
                 iMinDelta = iDelta;
             }
-            $('#results-modal').attr('style', 'display: inline');
-            $('#match-name').text(aoOtherUsers[iCompat].name);
         });
-        //        console.log("Compatible: ", aoOtherUsers[iCompat].name, iCompat);
-    });
-}
+        // now add this user to the array
+        oThisUser.name = req.body.name;
+        oThisUser.photo = req.body.photo;
+        oThisUser.scores = req.body.scores.map(v => +v);
+        //    oThisUser.iDelta = 100;
+        aoOtherUsers.push(oThisUser);
+//        console.log ("About to write: ", aoOtherUsers);
+        // write a file!
+        if (bWriteFile) {
+            fs.writeFile(path.join(__dirname, "app/data/friends.js"), JSON.stringify(aoOtherUsers),
+                function (err) {
+                    console.log(err)
+                });
+        }
+        res.end(JSON.stringify(aoOtherUsers[iCompat]));
+    }
+});

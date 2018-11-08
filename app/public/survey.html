@@ -1,4 +1,5 @@
 <!doctype html>
+
 <head>
   <meta charset="UTF-8">
   <title>FriendFinder</title>
@@ -7,7 +8,7 @@
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
   <script src="https://code.jquery.com/jquery.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
-
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.1.1/socket.io.js"></script>
   <!-- Font Awesome Glyphicons -->
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.1/css/font-awesome.min.css">
   <!--  <link rel="stylesheet" href = "./assets/friendFinder.css">  -->
@@ -165,7 +166,7 @@
         </div>
         <div class="modal-body">
           <h2 id="match-name"></h2>
-<!--          <img id="match-img" src="https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/6/005/064/1bd/3435aa3.jpg" alt=""> -->
+          <!--          <img id="match-img" src="https://media.licdn.com/mpr/mpr/shrinknp_400_400/p/6/005/064/1bd/3435aa3.jpg" alt=""> -->
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
@@ -174,7 +175,43 @@
 
     </div>
   </div>
-  <!-- <script src="/server.js"></script> -->
+
+  <script>
+    let aiValuesChosen = new Array(10);
+    // this assignment used for testing
+    aiValuesChosen = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
+
+    $('.select-buttons').on('change', function () {
+      // id[1] gets the number from ids of the form q1
+      console.log(`Select change: ${this.id[1]}, ${$(this).val()}`);
+      aiValuesChosen[this.id[1]] = parseInt ($(this).val());
+    });
+
+
+    $('#submit').click(function () {
+      console.log("Submit clicked");
+      let oUser = {};
+      // save this user
+      oUser.name = $('#name').val();
+      oUser.photo = $('#photo').val();
+      oUser.scores = aiValuesChosen;
+      console.log(oUser.name);
+      console.log(oUser.photo);
+      console.log(oUser.scores);
+
+      $.ajax({
+        type: 'POST',
+        url: 'http://localhost:3000/submit',
+        data: oUser,
+      }).done((res, req) => {
+        console.log(res);
+        console.log (JSON.parse (res));
+        $("#results-modal").css('display', "block");
+        $('#match-name').text(JSON.parse(res).name);
+      });
+    });
+
+     </script>
 </body>
 
 </html>

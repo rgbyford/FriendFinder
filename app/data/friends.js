@@ -1,0 +1,1 @@
+[{"name":"John","photo":"someURL","scores":[1,1,1,1,1,5,5,5,5,5]},{"name":"Tony","photo":"someURL","scores":[3,3,3,3,3,3,3,3,3,3]},{"name":"","photo":"","scores":[3,3,3,5,3,3,3,3,3,3]}]
