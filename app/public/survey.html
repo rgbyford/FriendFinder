@@ -201,7 +201,8 @@
 
       $.ajax({
         type: 'POST',
-        url: 'http://localhost:3000/submit',
+//        url: 'http://localhost:3000/submit',
+        url: '/submit',
         data: oUser,
       }).done((res, req) => {
         console.log(res);
