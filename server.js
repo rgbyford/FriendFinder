@@ -20,14 +20,9 @@ app.use(function (req, res, next) {
 app.use(express.urlencoded({
     extended: true
 }));
+
 app.use(express.json());
 
 require('./app/routing/htmlRoutes')(app);
 require('./app/routing/apiRoutes')(app);
 
-// $('#submit').click(function () {
-//     $.ajax({
-//         type: 'POST',
-//         url: '/submit'
-//     });
-// });

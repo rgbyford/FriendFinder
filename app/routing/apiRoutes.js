@@ -1,13 +1,14 @@
-module.exports = function(app) {
+let fs = require('fs');
+let path = require('path');
+
+module.exports = function (app) {
 
     app.post('/submit', function (req, res) {
-        // Get the survey results
-        let oThisUser = {};
-        let aoOtherUsers = [{}];
-    
-        fs.readFile(path.join(__dirname, "../data/friends.json"), readIt);
-    
-        function readIt(err, data) {
+        let oUserPassedIn = req.body;
+        fs.readFile(path.join(__dirname, "../data/friends.json"), (err, data) => {
+            let oThisUser = {};
+            let aoOtherUsers = [{}];
+
             if (err) throw (err);
             aoOtherUsers = JSON.parse(data);
             // find "partner"
@@ -17,7 +18,7 @@ module.exports = function(app) {
                 let iDelta = 0;
                 //            console.log(user);
                 user.scores.forEach((value2, j) => {
-                    iDelta += Math.abs(value2 - parseInt(req.body.scores[j]));
+                    iDelta += Math.abs(value2 - parseInt(oUserPassedIn.scores[j]));
                 });
                 if (iDelta <= iMinDelta) {
                     iCompat = i;
@@ -25,9 +26,9 @@ module.exports = function(app) {
                 }
             });
             // now add this user to the array
-            oThisUser.name = req.body.name;
-            oThisUser.photo = req.body.photo;
-            oThisUser.scores = req.body.scores.map(v => +v);
+            oThisUser.name = oUserPassedIn.name;
+            oThisUser.photo = oUserPassedIn.photo;
+            oThisUser.scores = oUserPassedIn.scores.map(v => +v);
             // Check first and see if he/she is already there
             let iFoundIndex = -1;
             aoOtherUsers.find((oUser, i) => {
@@ -39,7 +40,6 @@ module.exports = function(app) {
                 }
             });
             if (iFoundIndex >= 0) {
-                //             console.log("found ", oThisUser.name);
                 aoOtherUsers.splice(iFoundIndex, 1);
             }
             aoOtherUsers.push(oThisUser);
@@ -48,9 +48,8 @@ module.exports = function(app) {
                 function (err) {
                     if (err) console.log(err);
                 });
-            console.log(`Most compatible: ${iCompat}, ${aoOtherUsers[iCompat]}`);
             sOutput = iCompat >= 0 ? JSON.stringify(aoOtherUsers[iCompat]) : "No match!";
             res.end(sOutput);
-        }
+        });
     });
 }

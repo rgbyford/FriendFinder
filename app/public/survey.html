@@ -177,7 +177,6 @@
   </div>
 
   <script>
-    console.log("survey page running");
     let aiValuesChosen = new Array(10);
     // this assignment used as defaults
     aiValuesChosen = [3, 3, 3, 3, 3, 3, 3, 3, 3, 3];
@@ -188,12 +187,10 @@
     });
 
     $("#close-button").click(() => {
-      console.log("Close clicked");
       $('#results-modal').css('display', 'none');
     });
 
     $('#submit').click(function () {
-      console.log("Submit clicked");
       let oUser = {};
       // save this user
       oUser.name = $('#name').val();
